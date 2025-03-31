@@ -1,0 +1,20 @@
+# Node module
+node_modules
+
+# Fichier d'environnement
+.env.development
+.env.test
+.env.production
+
+# Fichier nvm
+.nvmrc
+
+
+# Fichier .json
+package-lock.json
+
+# Fichier dist
+dist
+
+# Fichier logs
+logs
