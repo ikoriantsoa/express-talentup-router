@@ -3,7 +3,6 @@ import apprenantsRoutes from "./routes/ApprenantRoute";
 import webinaireRoutes from "./routes/WebinaireRoutes";
 import entrepriseRoutes from "./routes/EntrepriseRoute";
 
-
 import cors from "cors";
 import AlternantRouter from "./routes/AlternantRoute";
 class App {
@@ -27,7 +26,7 @@ class App {
   private apiCors(): void {
     this.app.use(
       cors({
-        origin: "http://192.168.88.9:5004",
+        origin: "*",
         methods: "GET,POST,PUT,DELETE",
         allowedHeaders: "Content-Type,Authorization",
         credentials: true,
