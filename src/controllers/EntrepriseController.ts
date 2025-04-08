@@ -25,16 +25,36 @@ export class EntrepriseController {
       const keycloakId = keycloak.extractIdToken(token);
 
       //body
-      const { nom_entreprise, secteur_activite, site_web, adresse } = req.body;
+      const {
+        nom_entreprise,
+        numero_siret,
+        secteur_activite,
+        collaborateurs,
+        adresse,
+        telephone,
+        site_web,
+        linkedin,
+        nom_contact,
+        fonction_contact,
+        description_entreprise,
+      } = req.body;
 
       //mettre les info dans un objet
       const entreprise = {
         keycloakId,
         email: keycloak.extractEmail(token),
         nom_entreprise,
+        numero_siret,
         secteur_activite,
-        site_web,
+        collaborateurs,
         adresse,
+        telephone,
+        site_web,
+        linkedin,
+        nom_contact,
+        fonction_contact,
+        description_entreprise,
+        logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-nuBzsGwqhxuMohWpYeHlzozjgdgH-rquGw&s",
       };
 
       console.log(entreprise);
@@ -48,21 +68,30 @@ export class EntrepriseController {
       );
 
       // Mise à jour du rôle entreprise
-      keycloak.updateUserRoles(keycloakId, "entreprise");
+      keycloak.updateUserRoles(keycloakId, "en_attente_entreprise");
 
       res.status(201).json(response.data);
-      console.log("data", response.data);
 
       return;
-    } catch (error) {
-      res.status(500).json({
-        message: `API- erreur lors de la creation d'une entreprise: ${error}`,
-      });
+    } catch (error: any) {
+      //si le micro-service renvoye des errer, alors on l'affiche au frontend
+      if (error.response) {
+
+        console.log(error.response)
+        res.status(400).json(error.response.data);
+
+
+      } else {
+        //error non definie
+
+        res.status(500).json({
+          message: `API- erreur lors de la creation d'une entreprise: ${error}`,
+        });
+      }
 
       return;
     }
   }
-
 
   // *********recuperation tout les apprenant **
   public async getAllEntreprises(req: Request, res: Response): Promise<void> {
