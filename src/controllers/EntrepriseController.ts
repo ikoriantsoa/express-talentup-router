@@ -40,7 +40,7 @@ export class EntrepriseController {
       } = req.body;
 
       //mettre les info dans un objet
-      const entreprise = {
+      let entreprise = {
         keycloakId,
         email: keycloak.extractEmail(token),
         nom_entreprise,
@@ -56,6 +56,13 @@ export class EntrepriseController {
         description_entreprise,
         logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-nuBzsGwqhxuMohWpYeHlzozjgdgH-rquGw&s",
       };
+
+      if (entreprise.linkedin == "") {
+        entreprise.linkedin = undefined;
+      }
+      if (entreprise.site_web == "") {
+        entreprise.site_web = undefined;
+      }
 
       console.log(entreprise);
 
@@ -76,11 +83,8 @@ export class EntrepriseController {
     } catch (error: any) {
       //si le micro-service renvoye des errer, alors on l'affiche au frontend
       if (error.response) {
-
-        console.log(error.response)
+        // console.log(error.response)
         res.status(400).json(error.response.data);
-
-
       } else {
         //error non definie
 
@@ -90,6 +94,44 @@ export class EntrepriseController {
       }
 
       return;
+    }
+  }
+
+  // *****************************update entreprise role
+  public async updateEntreprise(req: Request, res: Response) {
+    try {
+      //recuperation du keycloakId
+      const { keycloakId } = req.params;
+
+      //je change le role dans keycloak
+      const keycloak = new Keycloak();
+
+      keycloak.updateUserRoles(keycloakId, "entreprise");
+
+      //je change le role dans le bdd
+      const entrepriseUrl = process.env.ENTREPRISE!;
+
+      //change role
+      const response: AxiosResponse<any, any> = await axios.put(
+        `${entrepriseUrl}/entreprise/${keycloakId}`
+      );
+
+      res.status(204).json(response);
+    } catch (error: any) {
+      if (error.status == 404) {
+        res
+          .status(404)
+          .json({
+            error: "utilisateur non trouvé dans keycloak avec ce keycloakId",
+          });
+      } else {
+        res
+          .status(500)
+          .json({
+            error:
+              "Erreur interne dans le serveur , lors de la mise a jour entreprise",
+          });
+      }
     }
   }
 

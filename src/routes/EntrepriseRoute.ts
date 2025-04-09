@@ -35,4 +35,13 @@ router.get(
 );
 
 
+// ****************voir un entrepriseController, seulement l'admin 
+router.put(
+  "/entreprise/:keycloakId",
+  keycloakMiddleware.tokenAuthentification,
+  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir 
+  entrepriseController.updateEntreprise
+);
+
+
 export default router

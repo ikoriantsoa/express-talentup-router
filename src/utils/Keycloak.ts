@@ -128,9 +128,19 @@ class Keycloak {
         `/users/${userId}/role-mappings/realm`,
         payload
       );
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour des rôles : ", error);
+    } catch (error:any) {
+
+      //gerer si l'user n'existe pas dans keycloak
+      if(error.status==404){
+        const err:any= new Error("cet user_id est non trouvé dans keycloak")
+
+        error.status
+        throw err
+      }else{
+        //err interne du server ou token manquant
+        console.error("Erreur lors de la mise à jour des rôles : ", error);
       throw new Error("Token invalide ou manquant");
+      }
     }
   }
 
