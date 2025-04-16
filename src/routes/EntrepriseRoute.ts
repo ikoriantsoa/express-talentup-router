@@ -10,6 +10,13 @@ const entrepriseController = new EntrepriseController();
 //midlleware
 const keycloakMiddleware = new KeycloakMiddleware();
 
+// **************valide sirene 
+router.post(
+  "/sirene/:sirene_entreprise",
+  keycloakMiddleware.tokenAuthentification,
+  keycloakMiddleware.checkRole(["anonyme"]), //un role anonyme peut cree un compte
+  entrepriseController.isEntrepriseSireneValide
+);
 // **********create entreprise ***********
 router.post(
   "/createEntreprise",

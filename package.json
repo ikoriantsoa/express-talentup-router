@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "cross-env NODE_ENV=development ts-node src/index.ts",
     "test": "cross-env NODE_ENV=test jest",
     "prod": "cross-env NODE_ENV=production node dist/index.js"
   },
@@ -27,6 +27,8 @@
   },
   "dependencies": {
     "axios": "^1.8.4",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "crypto": "^1.0.1",
