@@ -61,11 +61,11 @@ export class WebinaireController {
     try {
       const apprenantUrl: string = process.env.APPRENANT!;
       const { keycloakId, webinaireId } = req.params;
-  
+
       const response: AxiosResponse<any> = await axios.get(
         `${apprenantUrl}/getWebinaire/${keycloakId}/${webinaireId}`
       );
-  
+
       // Si tout va bien, retourne les données du webinaire
       res.status(200).json(response.data.data);
       return;
@@ -73,14 +73,14 @@ export class WebinaireController {
       // Si c’est une erreur Axios (ex: 403 du service apprenant)
       if (axios.isAxiosError(error)) {
         const status = error.response?.status || 500;
-        const message = error.response?.data?.message || 'Erreur inconnue';
-  
+        const message = error.response?.data?.message || "Erreur inconnue";
+
         res.status(status).json({
           message: `${message}`,
         });
         return;
       }
-  
+
       // Autres types d'erreurs
       res.status(500).json({
         message: `API Gateway - Erreur interne: ${error}`,
@@ -90,8 +90,35 @@ export class WebinaireController {
   }
 
   public async getAllWebinaire(req: Request, res: Response) {
-    const apprenantUrl: string = process.env.APPRENANT!;
+    try {
+      const apprenantUrl: string = process.env.APPRENANT!;
 
-    const result = await axios.get(``);
+      const response = await axios.get(`${apprenantUrl}/allWebinaire`);
+
+      res.status(200).json(response.data);
+      return;
+    } catch (error) {
+      res.status(404).json({
+        message: `Erreur lors de la récupération de la liste de tous les webinaires : ${error}`,
+      });
+      return;
+    }
   }
+
+  public async getRecentWebinaire(req: Request, res: Response) {
+    try {
+      const apprenantUrl: string = process.env.APPRENANT!;
+
+      const response = await axios.get(`${apprenantUrl}/recentWebinaire`);
+
+      res.status(200).json(response.data);
+      return;
+    } catch (error) {
+      res.status(404).json({
+        message: `Erreur lors de la récupération de la liste des webinaires ls plus récents : ${error}`,
+      });
+      return;
+    }
+  }
+
 }

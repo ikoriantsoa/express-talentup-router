@@ -39,4 +39,11 @@ router.get(
   webinaireController.getAllWebinaire
 );
 
+router.get(
+  "/recentWebinaire",
+  keycloakMiddleware.tokenAuthentification,
+  keycloakMiddleware.checkRole(["admin", "apprenant"]),
+  webinaireController.getRecentWebinaire
+);
+
 export default router;
