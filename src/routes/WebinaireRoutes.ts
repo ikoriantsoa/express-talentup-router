@@ -2,6 +2,8 @@ import { Router } from "express";
 import KeycloakMiddleware from "../middlewares/KeycloakMiddleware";
 import { WebinaireController } from "../controllers/WebinaireController";
 import { MulterConfig } from "../utils/Multer";
+import validateDto from "../controllers/dto/ValidateDto";
+import CreateWebinaireDto from "../controllers/dto/CreateWebinaire.dto";
 
 const router: Router = Router();
 
@@ -19,6 +21,7 @@ router.post(
     { name: "image", maxCount: 1 },
     { name: "source", maxCount: 1 },
   ]),
+  validateDto(CreateWebinaireDto),
   webinaireController.createWebinaire
 );
 
@@ -27,6 +30,13 @@ router.get(
   keycloakMiddleware.tokenAuthentification,
   keycloakMiddleware.checkRole(["apprenant"]),
   webinaireController.getWebinaireById
+);
+
+router.get(
+  "/allWebinaire",
+  keycloakMiddleware.tokenAuthentification,
+  keycloakMiddleware.checkRole(["admin", "apprenant"]),
+  webinaireController.getAllWebinaire
 );
 
 export default router;

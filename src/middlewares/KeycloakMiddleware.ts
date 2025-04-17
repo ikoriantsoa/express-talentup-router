@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import * as dotenv from "dotenv"; // Charge les variables d'environnement
 import Keycloak from "../utils/Keycloak"; // Importe l'instance Keycloak
+import { TokenExpiredError } from "jsonwebtoken";
 
 dotenv.config(); // Charge les variables d'environnement à partir du fichier .env
 
 class KeycloakMiddleware {
   private keycloak: Keycloak; // Déclare une instance de Keycloak
 
-  //constructor 
+  //constructor
   constructor() {
     this.keycloak = new Keycloak(); // Initialise Keycloak
 
@@ -16,7 +17,7 @@ class KeycloakMiddleware {
     this.refreshToken = this.refreshToken.bind(this);
   }
 
-  // Rafrachir le token 
+  // Rafrachir le token
   private async refreshToken(req: Request, res: Response, next: NextFunction) {
     const refreshToken = req.headers["x-refresh-token"]; // Récupère le refresh token des headers
 
@@ -46,7 +47,7 @@ class KeycloakMiddleware {
 
   // Méthode publique pour authentifier l'utilisateur avec son token
   public async tokenAuthentification(
-    req: Request, //req 
+    req: Request, //req
     res: Response, //response
     next: NextFunction
   ) {
@@ -75,11 +76,11 @@ class KeycloakMiddleware {
       next();
     } catch (error) {
       // Si le token est expiré, tente de le rafraîchir
-      if ((error as Error).message === "TokenExpiredError") {
+      if (error instanceof TokenExpiredError) {
         return this.refreshToken(req, res, next);
       }
       console.error(error);
-      res.sendStatus(403).send("Accès refusé"); // Accès interdit si erreur
+      res.status(403).json({ message: "Accès refusé" }); // Accès interdit si erreur
       return;
     }
   }
@@ -99,6 +100,7 @@ class KeycloakMiddleware {
       } else {
         //else on lui retourne un message
         res.status(403).json({ message: `Non autorisé: Rôle insuffisant` }); // Accès refusé
+        return;
       }
     };
   }
