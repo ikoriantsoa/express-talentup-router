@@ -83,21 +83,7 @@ class ApprenantController {
         presentation,
         linkedin,
         portfolio,
-        //objectives,
       } = req.body;
-
-      // if (
-      //   !Array.isArray(objectives) ||
-      //   !objectives.every((obj) => typeof obj === "string")
-      // ) {
-      //   res
-      //     .status(400)
-      //     .json({
-      //       error:
-      //         '"objectives" doit être un tableau de chaînes de caractères.',
-      //     });
-      //   return;
-      // }
 
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -170,7 +156,6 @@ class ApprenantController {
         presentation: presentation,
         linkedin: linkedin,
         portfolio: portfolio,
-        //objectives: objectives,
         cv: cvFile.path,
         photo: photoFile.path,
       };
