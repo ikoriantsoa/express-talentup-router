@@ -1,6 +1,7 @@
 import { Router } from "express";
 import ApprenantController from "../controllers/ApprenantController";
 import KeycloakMiddleware from "../middlewares/KeycloakMiddleware";
+import { MulterConfig } from "../utils/Multer";
 
 //Cration d'un router 
 const router: Router = Router();
@@ -10,6 +11,8 @@ const apprenantController: ApprenantController = new ApprenantController();
 
 // controller KeycloakMiddleawre 
 const keycloakMiddleware: KeycloakMiddleware = new KeycloakMiddleware();
+
+const upload = new MulterConfig();
 
 router.get(
   "/allApprenant", //nom du route
@@ -29,6 +32,11 @@ router.post(
   "/createApprenant",
   keycloakMiddleware.tokenAuthentification,
   keycloakMiddleware.checkRole(["anonyme"]),
+  upload.upload.fields([
+    {name: "cv", maxCount: 1},
+    {name: "photo", maxCount: 1}
+
+  ]),
   apprenantController.createApprenant //creation apprenant 
 );
 

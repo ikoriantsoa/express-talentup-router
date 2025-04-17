@@ -4,8 +4,18 @@ dotenv.config();
 import axios, { AxiosResponse } from "axios";
 import { Request, Response } from "express";
 import Keycloak from "../utils/Keycloak";
+import { CreateApprenantDto } from "./dto/CreateApprenant.dto";
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+import { MulterConfig } from "../utils/Multer";
 
 class ApprenantController {
+  private multerConfig: MulterConfig;
+
+  constructor() {
+    this.multerConfig = new MulterConfig();
+  }
+
   // *********recuperation tout les apprenant **
   public async getAllApprenants(req: Request, res: Response): Promise<void> {
     try {
@@ -24,6 +34,7 @@ class ApprenantController {
       res.status(404).json({
         message: `Erreur lors de la récupération de la liste de tous les apprenants : ${error}`,
       });
+      return;
     }
   }
 
@@ -41,6 +52,7 @@ class ApprenantController {
       res.status(404).json({
         message: `Erreur lors de la récupération d'un apprenant: ${error}`,
       });
+      return;
     }
   }
 
@@ -60,21 +72,107 @@ class ApprenantController {
 
     // **il existe
     try {
+      const {
+        nom,
+        prenom,
+        date_naissance,
+        telephone,
+        ville,
+        niveau_etude,
+        specialite,
+        presentation,
+        linkedin,
+        portfolio,
+        //objectives,
+      } = req.body;
+
+      // if (
+      //   !Array.isArray(objectives) ||
+      //   !objectives.every((obj) => typeof obj === "string")
+      // ) {
+      //   res
+      //     .status(400)
+      //     .json({
+      //       error:
+      //         '"objectives" doit être un tableau de chaînes de caractères.',
+      //     });
+      //   return;
+      // }
+
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+      if (!files || !files.cv || !files.photo) {
+        res
+          .status(400)
+          .json({ message: `Les champs "cv" et "photo" sont requis.` });
+        return;
+      }
+
+      const cvFile = files.cv[0];
+      const photoFile = files.photo[0];
+
+      // Vérification de la taille du cv (<= 2 Mo)
+      const cvSizeInMB = cvFile.size / (1024 * 1024);
+      if (cvSizeInMB > 2) {
+        res.status(400).json({ error: "Le cv ne doit pas dépasser 2 Mo." });
+        return;
+      }
+
+      // Vérification su le cv est un fichier PDF
+      const cvMimeType = cvFile.mimetype;
+      if (cvMimeType !== "application/pdf") {
+        res.status(400).json({ error: "Le cv doit être un fichier PDF." });
+        return;
+      }
+
+      const imageMime = ["image/jpg", "image/jpeg", "image/png", "image/gif"];
+
+      // Vérification su le cv est un fichier PDF
+      const photoMimeType = photoFile.mimetype;
+      if (!imageMime.includes(photoMimeType)) {
+        res.status(400).json({ error: "La photo doit être un fichier image." });
+        return;
+      }
+
+      // Vérification de la taille de la photo  (<= 2 Mo)
+      const photoSizeInMB = photoFile.size / (1024 * 1024);
+      if (photoSizeInMB > 2) {
+        res.status(400).json({ error: "La photo ne doit pas dépasser 2 Mo." });
+        return;
+      }
+
       // ***extraire le token et recuperer le body
       const keycloak: Keycloak = new Keycloak();
       const keycloakId = keycloak.extractIdToken(token);
 
-      //body
-      const { lastname, firstname, adresse } = req.body;
+      // Conversion des données en instance de DTO
+      const createApprenantDto: CreateApprenantDto = plainToInstance(
+        CreateApprenantDto,
+        req.body
+      );
+
+      // Validation des données
+      const errors = await validate(createApprenantDto);
+      if (errors.length > 0) {
+        res.status(400).json({ message: `Données invalides ${errors}` });
+      }
 
       //extraire les info
       const apprenant = {
         keycloakId: keycloakId,
-        email: keycloak.extractEmail(token),
-        username: keycloak.extractUsername(token),
-        lastname: lastname,
-        firstname: firstname,
-        adresse: adresse,
+        nom: nom,
+        prenom: prenom,
+        date_naissance: date_naissance,
+        telephone: telephone,
+        ville: ville,
+        niveau_etude: niveau_etude,
+        specialite: specialite,
+        presentation: presentation,
+        linkedin: linkedin,
+        portfolio: portfolio,
+        //objectives: objectives,
+        cv: cvFile.path,
+        photo: photoFile.path,
       };
 
       //envoyer vers la micro-service a l'aide d'un api procees.ev.appreant = port 3002
