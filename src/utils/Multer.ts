@@ -5,7 +5,7 @@ import path from 'path';
 export class MulterConfig {
   public storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, '/home/mgit/uploads');
+      cb(null, '/home/mgit/mgit-workspace/mgit-talentup/serveur-fichier/assets');
     },
     filename: (req, file, cb) => {
       const fieldname = file.fieldname;

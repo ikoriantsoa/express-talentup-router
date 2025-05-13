@@ -1,4 +1,4 @@
-import { Router } from "express";
+  import { Router } from "express";
 import { EntrepriseController } from "../controllers/EntrepriseController";
 import KeycloakMiddleware from "../middlewares/KeycloakMiddleware";
 
@@ -18,30 +18,28 @@ router.post(
   entrepriseController.createEntreprise
 );
 
-// **********************voir les entreprise , seulement l'admin 
+// **********************voir les entreprise , seulement l'admin
 router.get(
   "/AllEntreprise",
   keycloakMiddleware.tokenAuthentification,
-  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir 
+  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir
   entrepriseController.getAllEntreprises
 );
 
-// ****************voir un entrepriseController, seulement l'admin 
+// ****************voir un entrepriseController, seulement l'admin
 router.get(
   "/entreprise/:keycloakId",
   keycloakMiddleware.tokenAuthentification,
-  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir 
+  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir
   entrepriseController.getEntrepriseById
 );
 
-
-// ****************voir un entrepriseController, seulement l'admin 
+// ****************voir un entrepriseController, seulement l'admin
 router.put(
   "/entreprise/:keycloakId",
   keycloakMiddleware.tokenAuthentification,
-  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir 
+  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir
   entrepriseController.updateEntreprise
 );
 
-
-export default router
+export default router;

@@ -29,8 +29,8 @@ export class WebinaireController {
         return;
       }
 
-      const imagePath = files.image[0].path;
-      const sourcePath = files.source[0].path;
+      const imagePath = files.image[0].filename;
+      const sourcePath = files.source[0].filename;
 
       const dataWebinaire = {
         keycloakId: keycloakId,
