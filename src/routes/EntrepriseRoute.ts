@@ -10,7 +10,7 @@ const entrepriseController = new EntrepriseController();
 //midlleware
 const keycloakMiddleware = new KeycloakMiddleware();
 
-// **************valide sirene 
+// **************valide sirene
 router.post(
   "/sirene/:sirene_entreprise",
   keycloakMiddleware.tokenAuthentification,
@@ -25,30 +25,28 @@ router.post(
   entrepriseController.createEntreprise
 );
 
-// **********************voir les entreprise , seulement l'admin 
+// **********************voir les entreprise , seulement l'admin
 router.get(
   "/AllEntreprise",
   keycloakMiddleware.tokenAuthentification,
-  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir 
+  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir
   entrepriseController.getAllEntreprises
 );
 
-// ****************voir un entrepriseController, seulement l'admin 
+// ****************voir un entrepriseController, seulement l'admin
 router.get(
   "/entreprise/:keycloakId",
   keycloakMiddleware.tokenAuthentification,
-  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir 
+  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir
   entrepriseController.getEntrepriseById
 );
 
-
-// ****************voir un entrepriseController, seulement l'admin 
+// ****************change le compte, active account
 router.put(
   "/entreprise/:keycloakId",
   keycloakMiddleware.tokenAuthentification,
-  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir 
+  keycloakMiddleware.checkRole(["admin"]), //un role admin peut voir
   entrepriseController.updateEntreprise
 );
 
-
-export default router
+export default router;

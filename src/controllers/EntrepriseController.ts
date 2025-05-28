@@ -159,11 +159,9 @@ export class EntrepriseController {
       if (error.response) {
         res.status(error.response.status).json(error.response.data);
       } else {
-        res
-          .status(500)
-          .json({
-            error: "une erreur interne , lors de la creation d'une entreprise ",
-          });
+        res.status(500).json({
+          error: "une erreur interne , lors de la creation d'une entreprise ",
+        });
       }
 
       return;
@@ -185,12 +183,11 @@ export class EntrepriseController {
       const entrepriseUrl = process.env.ENTREPRISE!;
 
       //change role
-      const response: AxiosResponse<any, any> = await axios.put(
-        `${entrepriseUrl}/entreprise/${keycloakId}`,
-        {}
-      );
+      await axios.put(`${entrepriseUrl}/entreprise/${keycloakId}`, {});
+     
 
-      res.status(204).json(response);
+
+      res.status(204).json();
     } catch (error: any) {
       if (error.status == 404) {
         res.status(404).json({

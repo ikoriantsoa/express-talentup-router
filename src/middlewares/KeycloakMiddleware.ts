@@ -3,6 +3,8 @@ import * as dotenv from "dotenv"; // Charge les variables d'environnement
 import Keycloak from "../utils/Keycloak"; // Importe l'instance Keycloak
 import { TokenExpiredError } from "jsonwebtoken";
 
+import { isUUID } from "class-validator";
+
 dotenv.config(); // Charge les variables d'environnement à partir du fichier .env
 
 class KeycloakMiddleware {
@@ -84,6 +86,65 @@ class KeycloakMiddleware {
       return;
     }
   }
+
+  // Methode pour verifier les datas personnelles, seule l'user createur peut le voir
+  public validateKeycloakIdFromToken = async (
+    req: Request, //req
+    res: Response, //response
+    next: NextFunction
+  ) => {
+    //recuperation du Header dans le REq
+    const authHeader: string | undefined = req.headers.authorization;
+
+    //Recuperation du token
+    const token: string | undefined = authHeader && authHeader.split(" ")[1]; // Extrait le token
+
+    // Verification si le token existe
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !token) {
+      res.status(401).json({ message: `Token manquant ou invalide` });
+      return;
+    }
+
+    try {
+      //recuperer le keycloakID dans le URL
+      const { keycloakId } = req.params;
+
+      //on verifie en meme temps si c'est un uuid
+
+      if (isUUID(keycloakId)) {
+        //si oui
+        // DEcodage du token avec l'utilisation de Keycloak.verifyToken() qui se trouve dans utilis/Keycloak
+        const decoded = this.keycloak.verifyToken(token);
+
+        // On met dans la response : res.locals.user le token decoder
+        res.locals.user = decoded;
+
+        //on recupere le keycloakID dans le token
+        const keycloakIdFromToken = this.keycloak.extractIdToken(token);
+
+        //on verifie maintenant si ca match avec celle qui est dans le params
+
+        if (keycloakIdFromToken === keycloakId) {
+          next();
+          return;
+        } else {
+          res.status(403).json({ message: "Accès refusé" });
+          return;
+        }
+      } else {
+        res.status(400).json({ error: "le id n'est pas valide" });
+        return;
+      }
+    } catch (error) {
+      // Si le token est expiré, tente de le rafraîchir
+      if (error instanceof TokenExpiredError) {
+        return this.refreshToken(req, res, next);
+      }
+      console.error(error);
+      res.status(403).json({ message: "Accès refusé" }); // Accès interdit si erreur
+      return;
+    }
+  };
 
   //Verification de Role de l'user , une sorte d'authentification , prend en parm roles
   public checkRole(roles: string[]) {

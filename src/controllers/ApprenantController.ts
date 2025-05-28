@@ -130,6 +130,7 @@ class ApprenantController {
       // ***extraire le token et recuperer le body
       const keycloak: Keycloak = new Keycloak();
       const keycloakId = keycloak.extractIdToken(token);
+      const email = keycloak.extractEmail(token);
 
       // Conversion des données en instance de DTO
       const createApprenantDto: CreateApprenantDto = plainToInstance(
@@ -146,6 +147,7 @@ class ApprenantController {
       //extraire les info
       const apprenant = {
         keycloakId: keycloakId,
+        email:email,
         nom: nom,
         prenom: prenom,
         date_naissance: date_naissance,
@@ -160,6 +162,9 @@ class ApprenantController {
         photo: photoFile.path,
       };
 
+      console.log(apprenant)
+
+      
       //envoyer vers la micro-service a l'aide d'un api procees.ev.appreant = port 3002
       const apprenantUrl: string = process.env.APPRENANT!;
       const response: AxiosResponse<any, any> = await axios.post(
